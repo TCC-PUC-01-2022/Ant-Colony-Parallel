@@ -14,6 +14,7 @@ import math
 import time
 
 FOLDERDATASETS = 'Assets'
+FOLDEROUTPUT = 'Output'
 
 def get_pairwise_distance(matrix: np.ndarray) -> np.ndarray:
     return euclidean_distances(matrix)
@@ -157,12 +158,12 @@ def main():
     #dataframe = dataframe.drop(columns=[0, last_row])
     #num_instances = len(dataframe.index)
     start_time = time.time()
-    original_df = pd.read_csv(f"{FOLDERDATASETS}/banana.csv", sep=';') 
+    original_df = pd.read_csv(f"{FOLDERDATASETS}/Iris.csv", sep=';') 
     
-    dataframe = pd.read_csv(f"{FOLDERDATASETS}/banana.csv", sep=';')
+    dataframe = pd.read_csv(f"{FOLDERDATASETS}/Iris.csv", sep=';')
     
-    classes = dataframe["Class"]
-    dataframe = dataframe.drop(columns=["Class"])
+    classes = dataframe["Species"]
+    dataframe = dataframe.drop(columns=["Species"])
     initial_pheromone = 1
     Q = 1
     evaporation_rate = 0.1
@@ -173,10 +174,10 @@ def main():
     print(len(indices_selected))
     #print(indices_selected)
     reduced_dataframe = original_df.iloc[indices_selected]
-    reduced_dataframe.to_csv(f"{FOLDERDATASETS}/Banana_reduzidos.csv", index=False)
+    reduced_dataframe.to_csv(f"{FOLDEROUTPUT}/Iris_reduzidos.csv", index=False)
     print("Execution finished")
-    print("--- %s Hours ---" % ((time.time() - start_time)//3600))
-    print("--- %s Minutes ---" % ((time.time() - start_time)//60))
+    print("--- %s Hours ---" % ((time.time() - start_time)/3600))
+    print("--- %s Minutes ---" % ((time.time() - start_time)/60))
     print("--- %s Seconds ---" % (time.time() - start_time))
 
 
