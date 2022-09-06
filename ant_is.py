@@ -13,6 +13,7 @@ import random
 import math
 import time
 
+FOLDERDATASETS = 'Assets'
 
 def get_pairwise_distance(matrix: np.ndarray) -> np.ndarray:
     return euclidean_distances(matrix)
@@ -156,9 +157,9 @@ def main():
     #dataframe = dataframe.drop(columns=[0, last_row])
     #num_instances = len(dataframe.index)
     start_time = time.time()
-    original_df = pd.read_csv("banana.csv", sep=';') 
+    original_df = pd.read_csv(f"{FOLDERDATASETS}/banana.csv", sep=';') 
     
-    dataframe = pd.read_csv("banana.csv", sep=';')
+    dataframe = pd.read_csv(f"{FOLDERDATASETS}/banana.csv", sep=';')
     
     classes = dataframe["Class"]
     dataframe = dataframe.drop(columns=["Class"])
@@ -172,7 +173,7 @@ def main():
     print(len(indices_selected))
     #print(indices_selected)
     reduced_dataframe = original_df.iloc[indices_selected]
-    reduced_dataframe.to_csv('Banana_reduzidos.csv', index=False)
+    reduced_dataframe.to_csv(f"{FOLDERDATASETS}/Banana_reduzidos.csv", index=False)
     print("Execution finished")
     print("--- %s Hours ---" % ((time.time() - start_time)//3600))
     print("--- %s Minutes ---" % ((time.time() - start_time)//60))
