@@ -13,7 +13,6 @@ from sklearn.neural_network import MLPClassifier
 from imblearn.over_sampling import SMOTE 
 from collections import Counter
 
-import os
 import json
 from typing import *
 

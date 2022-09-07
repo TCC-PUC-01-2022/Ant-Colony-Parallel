@@ -1,20 +1,18 @@
-from itertools import count
 from sqlite3 import Time
 import pandas as pd
 import numpy as np
 from sklearn.metrics.pairwise import euclidean_distances
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score
-from numba import jit,cuda
-
+import argparse
 
 from typing import *
 import random
 import math
 import time
 
-FOLDERDATASETS = 'Assets'
-FOLDEROUTPUT = 'Output'
+FOLDERDATASETS = 'assets'
+FOLDEROUTPUT = 'out'
 
 def get_pairwise_distance(matrix: np.ndarray) -> np.ndarray:
     return euclidean_distances(matrix)
@@ -85,6 +83,7 @@ def get_probabilities_paths_ordered(ant: np.array, visibility_rates: np.array, p
 def get_best_solution(ant_solutions: np.ndarray, X, Y) -> np.array:
     accuracies = np.zeros(ant_solutions.shape[0], dtype=np.float64)
     best_solution = 0
+    
     for i, solution in enumerate(ant_solutions):
         instances_selected = np.nonzero(solution)[0]
         X_train = X[instances_selected, :]
@@ -151,19 +150,17 @@ def run_colony(X, Y, initial_pheromone, evaporarion_rate, Q):
     return instances_selected
 
 
-def main():
-    # dataframe = pd.read_csv("databases/ecoli.csv", header=None)
-    #last_row = len(dataframe.columns) - 1
-    #classes = dataframe[last_row]
-    #dataframe = dataframe.drop(columns=[0, last_row])
-    #num_instances = len(dataframe.index)
+def ant_colony(filename: str, selected_column: str) -> None:
+    # Selected dataset
+    selected_dataset = filename.split(".")[0] # removing extension file
+    
     start_time = time.time()
-    original_df = pd.read_csv(f"{FOLDERDATASETS}/Iris.csv", sep=';') 
+    original_df = pd.read_csv(f"{FOLDERDATASETS}/{selected_dataset}.csv", sep=';') 
     
-    dataframe = pd.read_csv(f"{FOLDERDATASETS}/Iris.csv", sep=';')
+    dataframe = pd.read_csv(f"{FOLDERDATASETS}/{selected_dataset}.csv", sep=';')
     
-    classes = dataframe["Species"]
-    dataframe = dataframe.drop(columns=["Species"])
+    classes = dataframe[selected_column]
+    dataframe = dataframe.drop(columns=[selected_column])
     initial_pheromone = 1
     Q = 1
     evaporation_rate = 0.1
@@ -172,14 +169,9 @@ def main():
                                   initial_pheromone, evaporation_rate, Q)
     print('End Search')
     print(len(indices_selected))
-    #print(indices_selected)
     reduced_dataframe = original_df.iloc[indices_selected]
-    reduced_dataframe.to_csv(f"{FOLDEROUTPUT}/Iris_reduzidos.csv", index=False)
+    reduced_dataframe.to_csv(f"{FOLDEROUTPUT}/{selected_dataset}_reduzidos.csv", index=False)
     print("Execution finished")
     print("--- %s Hours ---" % ((time.time() - start_time)/3600))
     print("--- %s Minutes ---" % ((time.time() - start_time)/60))
     print("--- %s Seconds ---" % (time.time() - start_time))
-
-
-if __name__ == '__main__':
-    main()
