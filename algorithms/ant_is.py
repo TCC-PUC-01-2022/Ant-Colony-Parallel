@@ -1,10 +1,8 @@
-from sqlite3 import Time
 import pandas as pd
 import numpy as np
 from sklearn.metrics.pairwise import euclidean_distances
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score
-import argparse
 
 from typing import *
 import random
