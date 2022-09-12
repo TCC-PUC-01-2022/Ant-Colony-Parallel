@@ -9,18 +9,19 @@ import random
 import math
 import time
 
+from numba import jit, njit, prange
+
 FOLDERDATASETS = 'assets'
 FOLDEROUTPUT = 'out'
 
-@njit
 def get_pairwise_distance(matrix: np.ndarray) -> np.ndarray:
     return euclidean_distances(matrix)
 
-	
+@njit(parallel=True)
 def get_visibility_rates_by_distances(distances: np.ndarray) -> np.ndarray:
     visibilities = np.zeros(distances.shape)
-    for i in range(distances.shape[0]):
-        for j in range(distances.shape[1]):
+    for i in prange(distances.shape[0]):
+        for j in prange(distances.shape[1]):
             if i != j:
                 if distances[i,j] == 0:
                     visibilities[i, j] = 0
@@ -29,11 +30,11 @@ def get_visibility_rates_by_distances(distances: np.ndarray) -> np.ndarray:
 
     return visibilities
 
-
+@njit
 def create_colony(num_ants):
     return np.full((num_ants, num_ants), -1)
 
-
+@njit
 def create_pheromone_trails(search_space: np.ndarray, initial_pheromone: float) -> np.ndarray:
     trails = np.full(search_space.shape, initial_pheromone, dtype=np.float64)
     np.fill_diagonal(trails, 0)
@@ -97,16 +98,16 @@ def get_best_solution(ant_solutions: np.ndarray, X, Y) -> np.array:
     # print(f"The winner is ant {best_solution} with accucarcy {accuracies[best_solution]}")
     return ant_solutions[best_solution]
 
-
+#@jit(parallel=True, forceobj=True)
 def run_colony(X, Y, initial_pheromone, evaporarion_rate, Q):
     distances = get_pairwise_distance(X)
     visibility_rates = get_visibility_rates_by_distances(distances)
     the_colony = create_colony(X.shape[0])
-    for i in range(X.shape[0]):
+    for i in prange(X.shape[0]):
         the_colony[i, i] = 1
 
 
-    ant_choices = [[(i, i)] for i in range(the_colony.shape[0])]
+    ant_choices = [[(i, i)] for i in prange(the_colony.shape[0])]
     pheromone_trails = create_pheromone_trails(distances, initial_pheromone)
     while -1 in the_colony:
         
@@ -135,14 +136,14 @@ def run_colony(X, Y, initial_pheromone, evaporarion_rate, Q):
                         the_colony[i, next_instance] = 0
 
         # Ant deposits the pheromones
-        for i in range(the_colony.shape[0]):
+        for i in prange(the_colony.shape[0]):
             ant_deposit = get_pheromone_deposit(ant_choices[i], distances, Q)
             for path in ant_choices[i][1:]:  # Never deposit in pheromone on i == j!
                 pheromone_trails[path[0], path[1]] += ant_deposit
 
         # Pheromones evaporation
-        for i in range(pheromone_trails.shape[0]):
-            for j in range(pheromone_trails.shape[1]):
+        for i in prange(pheromone_trails.shape[0]):
+            for j in prange(pheromone_trails.shape[1]):
                 pheromone_trails[i, j] = (1 - evaporarion_rate) * pheromone_trails[i, j]
 
     instances_selected = np.nonzero(get_best_solution(the_colony, X, Y))[0]
@@ -174,3 +175,10 @@ def ant_colony(filename: str, selected_column: str) -> None:
     print("--- %s Hours ---" % ((time.time() - start_time)/3600))
     print("--- %s Minutes ---" % ((time.time() - start_time)/60))
     print("--- %s Seconds ---" % (time.time() - start_time))
+    
+
+#ant_colony('TreinamentoEscPrep', 'Protestante_Evangelico')
+#ant_colony('TreinamentoEscPrep', 'Protestante_Evangelico')
+
+ant_colony('glass', 'Type')
+ant_colony('glass', 'Type')
